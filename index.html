@@ -231,7 +231,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         // CONFIGURATION
-        const CONFIG = {
+    const CONFIG = {
+    name: {
+        y: 1565,
+        size: 55,
+        color: '#004d40',
+        font: 'Noto Sans Malayalam'
+    },
+    school: {
+        y: 1650,
+        size: 40,
+        color: '#555555',
+        font: 'Manjari'
+    }
+};
+
             name: {
                 x: 850,
                 y: 1565, 
@@ -281,7 +295,13 @@ templateImg.onerror = () => {
                 return;
             }
 
-            const file = e.target.files[0];
+            // Limit image size (5MB)
+if (file.size > 5 * 1024 * 1024) {
+    alert("Please select an image smaller than 5MB");
+    fileInput.value = "";
+    return;
+}
+
             if (file) {
                 loadingDiv.style.display = 'block'; // Show loading
                 
@@ -368,6 +388,27 @@ templateImg.onerror = () => {
         }
 
         function drawText(ctx, canvasWidth) {
+    ctx.textAlign = 'center';
+
+    // Student Name
+    ctx.font = `bold ${CONFIG.name.size}px '${CONFIG.name.font}', sans-serif`;
+    ctx.fillStyle = CONFIG.name.color;
+    ctx.fillText(
+        nameInput.value,
+        canvasWidth / 2,
+        CONFIG.name.y
+    );
+
+    // School Name
+    ctx.font = `${CONFIG.school.size}px '${CONFIG.school.font}', sans-serif`;
+    ctx.fillStyle = CONFIG.school.color;
+    ctx.fillText(
+        schoolInput.value,
+        canvasWidth / 2,
+        CONFIG.school.y
+    );
+}
+
             ctx.textAlign = 'center';
             
             const nameX = CONFIG.name.x ? CONFIG.name.x : (canvasWidth / 2);
