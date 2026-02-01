@@ -3,22 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Little KITES Poster Pro</title>
+    <title>Little KITES Poster Pro V2</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
     
     <style>
-        #textControls input[type="range"] {
-    width: 100%;
-    margin-bottom: 10px;
-    accent-color: var(--primary);
-}
-#textControls label {
-    font-size: 0.7rem;
-    margin-top: 5px;
-    color: #666;
-}
         :root {
             --primary: #00897b; 
             --accent: #ff6f00;  
@@ -40,6 +30,9 @@
             overflow-x: hidden;
         }
 
+        #textControls input[type="range"] { width: 100%; margin-bottom: 10px; accent-color: var(--primary); }
+        #textControls label { font-size: 0.7rem; margin-top: 5px; color: #666; display: block; }
+
         header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
         header h1 { color: var(--dark); margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
 
@@ -56,7 +49,7 @@
         }
 
         .input-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); font-size: 0.85rem; text-transform: uppercase; }
         
         input[type="text"] {
             width: 100%;
@@ -81,7 +74,6 @@
             cursor: pointer;
             box-shadow: 0 6px 20px rgba(0, 137, 123, 0.2);
         }
-        input[type="file"] { display: none; }
 
         #result-area { display: none; text-align: center; width: 100%; max-width: 420px; animation: fadeIn 0.5s ease; }
         canvas { width: 100%; height: auto; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); background: #fff; }
@@ -96,10 +88,8 @@
             font-weight: 700;
             margin-top: 20px;
             font-size: 1.1rem;
-            box-shadow: 0 6px 20px rgba(255, 111, 0, 0.3);
         }
 
-        /* --- ADVANCED EDITOR MODAL --- */
         #editorModal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -109,104 +99,27 @@
             flex-direction: column;
         }
 
-        .crop-workspace { 
-            flex: 1; 
-            position: relative; 
-            background: #111; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden;
-        }
-
+        .crop-workspace { flex: 1; position: relative; background: #111; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         #imageToCrop { max-width: 100%; display: block; }
+        .template-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.6; background-size: contain; background-position: center; background-repeat: no-repeat; }
 
-        .template-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0.6;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .editor-controls { 
-            padding: 20px; 
-            background: #1a1a1a; 
-            display: flex; 
-            gap: 12px; 
-            padding-bottom: env(safe-area-inset-bottom, 25px);
-        }
-
-        .btn-modal { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: 600; font-size: 1rem; }
+        .editor-controls { padding: 20px; background: #1a1a1a; display: flex; gap: 12px; padding-bottom: env(safe-area-inset-bottom, 25px); }
+        .btn-modal { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: 600; cursor: pointer; }
         .btn-cancel { background: #333; color: #ccc; }
         .btn-save { background: var(--primary); color: white; }
 
-        #loading { 
-            display: none; 
-            position: fixed; 
-            top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); 
-            background: rgba(0,0,0,0.85); 
-            color: white; 
-            padding: 30px; 
-            border-radius: 20px; 
-            z-index: 10001; 
-            text-align: center;
-        }
+        #loading { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 30px; border-radius: 20px; z-index: 10001; }
 
-        /* Hide Cropper's default box to rely on our Ghost Template */
-        .cropper-view-box, .cropper-face {
-            outline: none !important;
-            background-color: transparent !important;
-        }
+        .cropper-view-box, .cropper-face { outline: none !important; background-color: transparent !important; }
         .cropper-line, .cropper-point { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        function toggleTextControls() {
-    const panel = document.getElementById('textControls');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
-function updateLiveConfig() {
-    // This updates the CONFIG object based on the sliders
-    CONFIG.name.size = document.getElementById('nameSize').value;
-    CONFIG.name.y = parseInt(document.getElementById('nameY').value);
-    CONFIG.name.color = document.getElementById('nameColor').value;
-    CONFIG.name.bold = document.getElementById('nameBold').checked;
-    
-    CONFIG.school.size = document.getElementById('schoolSize').value;
-    CONFIG.school.y = parseInt(document.getElementById('schoolY').value);
-}
-
-// Update your existing drawText function to use the 'bold' property
-function drawText(ctx, canvasWidth) {
-    ctx.textAlign = 'center';
-    
-    // Name
-    const nameWeight = CONFIG.name.bold ? 'bold' : 'normal';
-    ctx.font = `${nameWeight} ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
-    ctx.fillStyle = CONFIG.name.color;
-    ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
-    
-    // School
-    ctx.font = `${CONFIG.school.size}px 'Manjari', sans-serif`;
-    ctx.fillStyle = CONFIG.school.color;
-    ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
-}
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Little KITES V2.0</h1>
+        <h1>Little KITES V3.0</h1>
         <p style="margin:2px 0; font-size: 0.9rem; opacity: 0.8;">Camp Poster Designer</p>
     </header>
 
@@ -215,26 +128,27 @@ function drawText(ctx, canvasWidth) {
     <div class="card" id="inputSection">
         <button type="button" onclick="toggleTextControls()" style="width:100%; background:#eceff1; border:none; padding:10px; border-radius:10px; margin-bottom:15px; cursor:pointer; font-weight:600; color:var(--dark);">⚙️ Customize Text Style</button>
 
-<div id="textControls" style="display:none; background:rgba(0,0,0,0.03); padding:15px; border-radius:15px; margin-bottom:15px;">
-    <label>Name: Size & Vertical Position</label>
-    <input type="range" id="nameSize" min="20" max="150" value="55" oninput="updateLiveConfig()">
-    <input type="range" id="nameY" min="0" max="2000" value="1565" oninput="updateLiveConfig()">
-    
-    <label>School: Size & Vertical Position</label>
-    <input type="range" id="schoolSize" min="20" max="120" value="40" oninput="updateLiveConfig()">
-    <input type="range" id="schoolY" min="0" max="2000" value="1650" oninput="updateLiveConfig()">
-    
-    <div style="display:flex; gap:10px; margin-top:10px;">
-        <div style="flex:1">
-            <label>Name Color</label>
-            <input type="color" id="nameColor" value="#004d40" oninput="updateLiveConfig()" style="width:100%; height:40px; border:none; background:none;">
+        <div id="textControls" style="display:none; background:rgba(0,0,0,0.03); padding:15px; border-radius:15px; margin-bottom:15px;">
+            <label>Name: Size & Vertical Position</label>
+            <input type="range" id="nameSize" min="20" max="150" value="85" oninput="updateLiveConfig()">
+            <input type="range" id="nameY" min="0" max="2000" value="1565" oninput="updateLiveConfig()">
+            
+            <label>School: Size & Vertical Position</label>
+            <input type="range" id="schoolSize" min="20" max="120" value="40" oninput="updateLiveConfig()">
+            <input type="range" id="schoolY" min="0" max="2000" value="1650" oninput="updateLiveConfig()">
+            
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <div style="flex:1">
+                    <label>Name Color</label>
+                    <input type="color" id="nameColor" value="#004d40" oninput="updateLiveConfig()" style="width:100%; height:40px; border:none; background:none;">
+                </div>
+                <div style="flex:1">
+                    <label>Bold Name</label>
+                    <input type="checkbox" id="nameBold" checked onchange="updateLiveConfig()">
+                </div>
+            </div>
         </div>
-        <div style="flex:1">
-            <label>Bold Name</label>
-            <input type="checkbox" id="nameBold" checked onchange="updateLiveConfig()">
-        </div>
-    </div>
-</div>
+
         <div class="input-group">
             <label>Student Name</label>
             <input type="text" id="nameInput" placeholder="Enter Full Name">
@@ -244,9 +158,7 @@ function drawText(ctx, canvasWidth) {
             <input type="text" id="schoolInput" placeholder="Enter School Name">
         </div>
 
-        <label for="fileInput" class="btn-upload">
-            <span>📷</span> Upload & Adjust
-        </label>
+        <label for="fileInput" class="btn-upload"><span>📷</span> Upload & Adjust</label>
         <input type="file" id="fileInput" accept="image/*">
     </div>
 
@@ -257,10 +169,7 @@ function drawText(ctx, canvasWidth) {
     </div>
 
     <div id="editorModal">
-        <div style="color:white; text-align:center; padding:15px; background:rgba(0,0,0,0.7); font-size: 0.8rem; z-index: 11;">
-            Pinch/Scale photo to fit inside the frame
-        </div>
-        <div class="crop-workspace" id="cropWorkspace">
+        <div class="crop-workspace">
             <img id="imageToCrop">
             <div id="ghostOverlay" class="template-overlay"></div>
         </div>
@@ -272,8 +181,9 @@ function drawText(ctx, canvasWidth) {
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
+        // INITIAL CONFIG
         const CONFIG = {
-            name: { y: 1565, size: 85, color: '#004d40' },
+            name: { y: 1565, size: 85, color: '#004d40', bold: true },
             school: { y: 1650, size: 40, color: '#455a64' }
         };
 
@@ -299,6 +209,22 @@ function drawText(ctx, canvasWidth) {
             ghostOverlay.style.backgroundImage = `url('template.png')`;
         };
 
+        // UI FUNCTIONS
+        function toggleTextControls() {
+            const panel = document.getElementById('textControls');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateLiveConfig() {
+            CONFIG.name.size = document.getElementById('nameSize').value;
+            CONFIG.name.y = parseInt(document.getElementById('nameY').value);
+            CONFIG.name.color = document.getElementById('nameColor').value;
+            CONFIG.name.bold = document.getElementById('nameBold').checked;
+            
+            CONFIG.school.size = document.getElementById('schoolSize').value;
+            CONFIG.school.y = parseInt(document.getElementById('schoolY').value);
+        }
+
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -322,24 +248,15 @@ function drawText(ctx, canvasWidth) {
         function openEditor() {
             editorModal.style.display = 'flex';
             if(cropper) cropper.destroy();
-            
             const ratio = templateLoaded ? templateImg.width / templateImg.height : 1;
-
             cropper = new Cropper(imageToCrop, {
                 aspectRatio: ratio,
-                viewMode: 0, // CRITICAL: Allows image to be smaller than the canvas
+                viewMode: 0,
                 dragMode: 'move',
                 touchDragZoom: true,
                 autoCropArea: 1,
-                restore: false,
-                guides: false,
-                center: false,
-                highlight: false,
-                cropBoxMovable: false,
-                cropBoxResizable: false,
-                toggleDragModeOnDblclick: false,
                 background: false,
-                minCanvasWidth: 0, // Allows extreme shrinking
+                minCanvasWidth: 0,
                 minCanvasHeight: 0
             });
         }
@@ -353,27 +270,21 @@ function drawText(ctx, canvasWidth) {
         function generatePoster() {
             if (!cropper) return;
             loadingDiv.style.display = 'block';
-
             setTimeout(() => {
                 const tWidth = templateLoaded ? templateImg.width : 1080;
                 const tHeight = templateLoaded ? templateImg.height : 1080;
-
                 const userCanvas = cropper.getCroppedCanvas({ 
                     width: tWidth, 
                     height: tHeight,
                     imageSmoothingQuality: 'high',
-                    fillColor: '#fff' // Background color if photo doesn't fill the frame
+                    fillColor: '#fff'
                 });
-
                 finalCanvas.width = tWidth;
                 finalCanvas.height = tHeight;
                 const ctx = finalCanvas.getContext('2d');
-
                 ctx.drawImage(userCanvas, 0, 0);
                 if(templateLoaded) ctx.drawImage(templateImg, 0, 0);
-                
                 drawText(ctx, tWidth);
-
                 loadingDiv.style.display = 'none';
                 editorModal.style.display = 'none';
                 inputSection.style.display = 'none'; 
@@ -384,9 +295,13 @@ function drawText(ctx, canvasWidth) {
 
         function drawText(ctx, canvasWidth) {
             ctx.textAlign = 'center';
-            ctx.font = `bold ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
+            // Custom Name drawing based on sliders
+            const nameWeight = CONFIG.name.bold ? 'bold' : 'normal';
+            ctx.font = `${nameWeight} ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
             ctx.fillStyle = CONFIG.name.color;
             ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
+            
+            // Custom School drawing
             ctx.font = `600 ${CONFIG.school.size}px 'Manjari', sans-serif`;
             ctx.fillStyle = CONFIG.school.color;
             ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
