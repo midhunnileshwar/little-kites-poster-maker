@@ -194,14 +194,26 @@ canvas{
 <body>
 
 <header>
-    <h1>Little KITES V3.3</h1>
-    <p style="margin:2px 0;font-size:.9rem;opacity:.8;">Camp Poster Designer</p>
+    <h1>KITE Frame V3.3</h1>
+    <p style="margin:2px 0;font-size:.9rem;opacity:.8;"> Posters made personal </p>
+       <p style="margin:2px 0;font-size:.9rem;opacity:.8;"> 🔒 Your photo is processed only on your phone. </p>
 </header>
 
 <div id="loading">✨ Finalizing Poster...</div>
 
 <div class="card" id="inputSection">
-
+<div style="
+    display:flex;
+    justify-content:space-between;
+    font-size:.7rem;
+    opacity:.75;
+    margin-bottom:12px;
+">
+<span>① Enter Details</span>
+<span>② Add Photo</span>
+<span>③ Save Poster</span>
+</div>
+    
 <button type="button" onclick="toggleTextControls()" style="width:100%;background:#eceff1;border:none;padding:10px;border-radius:10px;margin-bottom:15px;cursor:pointer;font-weight:600;color:var(--dark);">
 ⚙️ Customize Text Style
 </button>
@@ -236,6 +248,18 @@ canvas{
 <label>School Name</label>
 <input type="text" id="schoolInput" placeholder="Enter School Name">
 </div>
+<div style="
+    background:#e0f2f1;
+    border-radius:12px;
+    padding:10px;
+    font-size:.75rem;
+    color:#004d40;
+    margin-bottom:12px;
+    text-align:center;
+">
+🔒 Your photo is processed only on your device.  
+Nothing is uploaded or stored anywhere.
+</div>
 
 <label for="fileInput" class="btn-upload">📷 Upload & Adjust</label>
 <input type="file" id="fileInput" accept="image/*" style="display:none;">
@@ -243,6 +267,10 @@ canvas{
 </div>
 
 <div id="result-area">
+    <p style="font-size:.75rem;opacity:.7;margin-top:8px;">
+Ready to share on WhatsApp, Instagram & Telegram
+</p>
+
 <canvas id="finalCanvas"></canvas>
 <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Save to Phone 📥</a>
 <button onclick="location.reload()" style="background:none;border:none;color:var(--dark);font-weight:600;text-decoration:underline;cursor:pointer;margin-top:20px;">
