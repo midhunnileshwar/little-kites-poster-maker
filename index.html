@@ -195,7 +195,7 @@ canvas{
 <body>
 
 <header>
-    <h1>Little KITES V3.1</h1>
+    <h1>Little KITES V3.2</h1>
     <p style="margin:2px 0;font-size:.9rem;opacity:.8;">Camp Poster Designer</p>
 </header>
 
@@ -264,11 +264,13 @@ Create New Poster
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
+/* ---------------- CONFIG ---------------- */
 const CONFIG={
-    name:{y:1565,size:85,color:'#004d40',bold:true},
-    school:{y:1650,size:40,color:'#455a64'}
+  name:{y:1565,size:85,color:'#004d40',bold:true},
+  school:{y:1650,size:40,color:'#455a64'}
 };
 
+/* ---------------- ELEMENTS ---------------- */
 const fileInput=document.getElementById('fileInput');
 const nameInput=document.getElementById('nameInput');
 const schoolInput=document.getElementById('schoolInput');
@@ -280,111 +282,156 @@ const inputSection=document.getElementById('inputSection');
 const loadingDiv=document.getElementById('loading');
 const ghostOverlay=document.getElementById('ghostOverlay');
 
+/* Slider Elements for Live Config Update */
+const nameSizeEl = document.getElementById('nameSize');
+const nameYEl = document.getElementById('nameY');
+const nameColorEl = document.getElementById('nameColor');
+const nameBoldEl = document.getElementById('nameBold');
+const schoolSizeEl = document.getElementById('schoolSize');
+const schoolYEl = document.getElementById('schoolY');
+
+/* ---------------- STATE ---------------- */
 let cropper=null;
 let templateImg=new Image();
-let templateLoaded=false;
-
-/* FIXED: safer path for GitHub Pages */
 templateImg.crossOrigin="anonymous";
 templateImg.src="./template.png";
+
 templateImg.onload=()=>{
-    templateLoaded=true;
-    ghostOverlay.style.backgroundImage="url('./template.png')";
+  ghostOverlay.style.backgroundImage="url('./template.png')";
 };
 
+/* ---------------- UI ---------------- */
 function toggleTextControls(){
-    const p=document.getElementById('textControls');
-    p.style.display=p.style.display==='none'?'block':'none';
+  const p=document.getElementById('textControls');
+  p.style.display=p.style.display==='none'?'block':'none';
 }
 
 function updateLiveConfig(){
-    CONFIG.name.size=nameSize.value;
-    CONFIG.name.y=parseInt(nameY.value);
-    CONFIG.name.color=nameColor.value;
-    CONFIG.name.bold=nameBold.checked;
-    CONFIG.school.size=schoolSize.value;
-    CONFIG.school.y=parseInt(schoolY.value);
+  CONFIG.name.size=nameSizeEl.value;
+  CONFIG.name.y=parseInt(nameYEl.value);
+  CONFIG.name.color=nameColorEl.value;
+  CONFIG.name.bold=nameBoldEl.checked;
+  CONFIG.school.size=schoolSizeEl.value;
+  CONFIG.school.y=parseInt(schoolYEl.value);
 }
 
-/* 🔥 FIXED: MISSING FUNCTION */
+/* ---------------- EDITOR ---------------- */
 function openEditor(){
-    editorModal.style.display='flex';
-    if(cropper) cropper.destroy();
-    cropper=new Cropper(imageToCrop,{
-        viewMode:1,
-        dragMode:'move',
-        aspectRatio:1,
-        autoCropArea:1,
-        background:false,
-        guides:false,
-        center:false,
-        highlight:false,
-        cropBoxMovable:false,
-        cropBoxResizable:false
-    });
+  editorModal.style.display='flex';
+  if(cropper) cropper.destroy();
+
+  cropper=new Cropper(imageToCrop,{
+    viewMode:0,                // 🔓 allow free movement outside canvas
+    dragMode:'move',
+    autoCrop:false,            // ❌ remove fixed crop box
+    background:false,
+    guides:false,
+    center:false,
+    highlight:false,
+    movable:true,
+    zoomable:true,
+    scalable:true,
+    cropBoxMovable:false,
+    cropBoxResizable:false
+  });
 }
 
 fileInput.addEventListener('change',e=>{
-    const file=e.target.files[0];
-    if(!file) return;
-    if(!nameInput.value.trim()||!schoolInput.value.trim()){
-        alert("Please fill details first!");
-        fileInput.value="";
-        return;
-    }
-    loadingDiv.style.display='block';
-    const reader=new FileReader();
-    reader.onload=evt=>{
-        imageToCrop.src=evt.target.result;
-        imageToCrop.onload=()=>{
-            loadingDiv.style.display='none';
-            openEditor();
-        };
+  const file=e.target.files[0];
+  if(!file) return;
+
+  if(!nameInput.value.trim()||!schoolInput.value.trim()){
+    alert("Please fill name and school first");
+    fileInput.value="";
+    return;
+  }
+
+  loadingDiv.style.display='block';
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    imageToCrop.src=ev.target.result;
+    imageToCrop.onload=()=>{
+      loadingDiv.style.display='none';
+      openEditor();
     };
-    reader.readAsDataURL(file);
+  };
+  reader.readAsDataURL(file);
 });
 
 function closeEditor(){
-    editorModal.style.display='none';
-    if(cropper) cropper.destroy();
-    cropper=null;
-    fileInput.value="";
+  editorModal.style.display='none';
+  if(cropper) cropper.destroy();
+  cropper=null;
+  fileInput.value="";
 }
 
+/* ---------------- FINAL POSTER ---------------- */
 function generatePoster(){
-    if(!cropper) return;
-    loadingDiv.style.display='block';
-    setTimeout(()=>{
-        const w=templateLoaded?templateImg.width:1080;
-        const h=templateLoaded?templateImg.height:1080;
-        const userCanvas=cropper.getCroppedCanvas({
-            width:w,
-            height:h,
-            imageSmoothingQuality:'high',
-            fillColor:'#fff'
-        });
-        finalCanvas.width=w;
-        finalCanvas.height=h;
-        const ctx=finalCanvas.getContext('2d');
-        ctx.drawImage(userCanvas,0,0);
-        if(templateLoaded) ctx.drawImage(templateImg,0,0);
-        drawText(ctx,w);
-        loadingDiv.style.display='none';
-        editorModal.style.display='none';
-        inputSection.style.display='none';
-        document.getElementById('result-area').style.display='block';
-        downloadBtn.href=finalCanvas.toDataURL('image/png',1.0);
-    },100);
+  if(!cropper) return;
+  loadingDiv.style.display='block';
+
+  setTimeout(()=>{
+    // Determine target dimensions from template or default to 1080
+    const w = templateImg.complete && templateImg.naturalWidth !== 0 ? templateImg.width : 1080;
+    const h = templateImg.complete && templateImg.naturalHeight !== 0 ? templateImg.height : 1080;
+
+    finalCanvas.width=w;
+    finalCanvas.height=h;
+    const ctx=finalCanvas.getContext('2d');
+
+    // Fill white background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,w,h);
+
+    /* Draw user image using transform data */
+    const img = imageToCrop;
+    const canvasData = cropper.getCanvasData();
+    const imageData = cropper.getImageData();
+
+    // Calculate scale factor between cropper display and real poster resolution
+    // We use the ratio of the template width to the cropper's container width
+    const displayRatio = w / canvasData.width;
+
+    ctx.save();
+    // Translate and Scale based on cropper's internal state
+    ctx.translate(
+        (imageData.left - canvasData.left) * displayRatio, 
+        (imageData.top - canvasData.top) * displayRatio
+    );
+    ctx.scale(
+        (imageData.width / imageData.naturalWidth) * displayRatio, 
+        (imageData.height / imageData.naturalHeight) * displayRatio
+    );
+    
+    ctx.drawImage(img, 0, 0);
+    ctx.restore();
+
+    /* Draw template on top */
+    if(templateImg.complete) {
+        ctx.drawImage(templateImg, 0, 0, w, h);
+    }
+
+    /* Draw text */
+    drawText(ctx, w);
+
+    loadingDiv.style.display='none';
+    editorModal.style.display='none';
+    inputSection.style.display='none';
+    document.getElementById('result-area').style.display='block';
+    downloadBtn.href=finalCanvas.toDataURL('image/png', 1.0);
+  }, 100);
 }
 
+/* ---------------- TEXT ---------------- */
 function drawText(ctx,w){
-    ctx.textAlign='center';
-    ctx.font=`${CONFIG.name.bold?'bold':'normal'} ${CONFIG.name.size}px 'Noto Sans Malayalam',sans-serif`;
-    ctx.fillStyle=CONFIG.name.color;
-    ctx.fillText(nameInput.value,w/2,CONFIG.name.y);
-    ctx.font=`600 ${CONFIG.school.size}px 'Manjari',sans-serif`;
-    ctx.fillStyle=CONFIG.school.color;
-    ctx.fillText(schoolInput.value,w/2,CONFIG.school.y);
+  ctx.textAlign='center';
+  ctx.fillStyle=CONFIG.name.color;
+  ctx.font=`${CONFIG.name.bold?'bold':'normal'} ${CONFIG.name.size}px 'Noto Sans Malayalam',sans-serif`;
+  ctx.fillText(nameInput.value,w/2,CONFIG.name.y);
+
+  ctx.fillStyle=CONFIG.school.color;
+  ctx.font=`600 ${CONFIG.school.size}px 'Manjari',sans-serif`;
+  ctx.fillText(schoolInput.value,w/2,CONFIG.school.y);
 }
 </script>
 </body>
