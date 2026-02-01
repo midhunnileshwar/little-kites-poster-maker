@@ -1,450 +1,363 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KITE Kasaragod Poster Generator</title>
+    <title>Little KITES Camp Selection Generator</title>
     
-    <!-- Cropper.js (Used only for touch gestures, grid hidden) -->
+    <!-- Cropper.js for photo editing -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    
-    <!-- Google Fonts: Manjari (Malayalam) & Roboto -->
-    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- THEME COLORS (KITE BRANDING) --- */
         :root {
-            --kite-teal: #00897b;
-            --kite-dark: #004d40;
-            --kite-orange: #ff6f00;
-            --bg-color: #f5f7fa;
-            --white: #ffffff;
+            --primary: #00897b; 
+            --accent: #ff6f00;  
+            --dark: #004d40;
+            --bg: #e0f2f1;
         }
 
         body {
-            font-family: 'Roboto', 'Manjari', sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Noto Sans Malayalam', 'Manjari', sans-serif;
+            background-color: var(--bg);
             margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
-        /* --- ATTRACTIVE HEADER --- */
-        header {
-            background: linear-gradient(135deg, var(--kite-teal), var(--kite-dark));
-            width: 100%;
-            padding: 30px 20px;
-            text-align: center;
-            color: var(--white);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            margin-bottom: -40px; /* Overlap effect */
-            padding-bottom: 60px;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        p.subtitle {
-            margin-top: 8px;
-            opacity: 0.9;
-            font-size: 0.95rem;
-        }
-
-        /* --- MAIN CARD --- */
-        .container {
-            width: 90%;
-            max-width: 420px;
-            z-index: 10;
-        }
+        h1 { color: var(--dark); margin: 0; font-size: 1.5rem; text-align: center; }
+        p { color: #555; margin-top: 5px; font-size: 0.9rem; text-align: center; }
 
         .card {
-            background: var(--white);
+            background: white;
+            padding: 20px;
             border-radius: 20px;
-            padding: 30px 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
         }
 
-        /* --- INPUT FIELDS --- */
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            color: #555;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
+        .input-group { margin-bottom: 15px; width: 100%; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--dark); font-size: 0.9rem; }
+        
         input[type="text"] {
             width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid #b2dfdb;
+            border-radius: 10px;
             font-size: 1rem;
-            transition: border-color 0.3s;
             box-sizing: border-box;
-            font-family: inherit;
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--kite-teal);
-        }
-
-        /* --- BUTTONS --- */
-        .btn-main {
-            background-color: var(--kite-teal);
+        .btn-upload {
+            background: var(--primary);
             color: white;
-            border: none;
-            padding: 16px;
+            padding: 15px;
             border-radius: 50px;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 137, 123, 0.3);
-            transition: transform 0.2s;
+            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-        }
-
-        .btn-main:active { transform: scale(0.98); }
-
-        .btn-download {
-            background-color: var(--kite-orange);
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 15px;
-        }
-
-        /* --- RESULT AREA --- */
-        #resultArea {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        canvas {
+            cursor: pointer;
             width: 100%;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            border: 4px solid white;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0, 137, 123, 0.3);
         }
-
-        /* --- FOOTER --- */
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            text-align: center;
-            color: #777;
-            font-size: 0.8rem;
-        }
-        
-        .developer-credit {
-            color: var(--kite-teal);
-            font-weight: bold;
-        }
-
-        /* --- HIDDEN FILE INPUT --- */
         input[type="file"] { display: none; }
 
-        /* --- PHOTO ADJUSTMENT MODAL (Full Screen) --- */
-        #photoModal {
+        /* Preview Area */
+        #result-area {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        canvas { width: 100%; height: auto; border-radius: 15px; }
+
+        .btn-download {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(255, 111, 0, 0.3);
+        }
+
+        /* --- EDITOR MODAL --- */
+        #editorModal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: #111;
-            z-index: 2000;
-            display: none;
+            background: #000;
+            z-index: 9999; /* Super high priority */
+            display: none; /* Hidden by default */
             flex-direction: column;
         }
 
-        .modal-header {
-            color: white;
-            text-align: center;
-            padding: 15px;
-            background: rgba(0,0,0,0.5);
-            font-size: 0.9rem;
-            z-index: 20;
-        }
-
-        .modal-body {
+        .crop-workspace {
             flex: 1;
             position: relative;
             background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
         }
 
-        /* The Template Overlay in the Editor */
-        .overlay-preview {
+        /* Ensure image fits within workspace */
+        #imageToCrop {
+            max-width: 100%;
+            max-height: 80vh; 
+            display: block;
+        }
+
+        .overlay-guide {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none; /* Let touches pass through to image */
-            background-image: url('template.png'); 
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: url('template.png');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.8; /* Make it slightly see-through so they can align */
+            opacity: 0.4;
+            z-index: 2;
         }
 
-        .modal-footer {
+        .editor-controls {
             padding: 20px;
             background: #111;
             display: flex;
             gap: 15px;
-            z-index: 20;
+            z-index: 3;
         }
 
-        .btn-cancel { background: #444; color: white; border: none; padding: 15px; border-radius: 10px; flex: 1; font-weight: bold; cursor:pointer;}
-        .btn-confirm { background: var(--kite-teal); color: white; border: none; padding: 15px; border-radius: 10px; flex: 1; font-weight: bold; cursor:pointer;}
+        .btn-modal {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn-cancel { background: #424242; color: white; }
+        .btn-save { background: var(--primary); color: white; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Loading Indicator */
+        #loading {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10000;
+        }
 
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header>
         <h1>Little KITES Selection</h1>
-        <p class="subtitle">Create your congratulatory poster instantly</p>
+        <p>Poster Generator</p>
     </header>
 
-    <!-- Main Content -->
-    <div class="container">
-        
-        <!-- Input Form -->
-        <div class="card" id="inputForm">
-            <div class="input-group">
-                <label>Student Name</label>
-                <input type="text" id="nameInput" placeholder="Enter Name (Malayalam or English)">
-            </div>
+    <div id="loading">Processing Image...</div>
 
-            <div class="input-group">
-                <label>School Name</label>
-                <input type="text" id="schoolInput" placeholder="Enter School Name">
-            </div>
-
-            <label for="fileInput" class="btn-main">
-                <span>📷 Tap to Upload Photo</span>
-            </label>
-            <input type="file" id="fileInput" accept="image/*">
+    <div class="card" id="inputSection">
+        <div class="input-group">
+            <label>Student Name</label>
+            <input type="text" id="nameInput" placeholder="Ex: Adhithyan K">
+        </div>
+        <div class="input-group">
+            <label>School Name</label>
+            <input type="text" id="schoolInput" placeholder="Ex: GHSS Nileshwar">
         </div>
 
-        <!-- Final Result Display -->
-        <div id="resultArea" class="card">
-            <h3 style="margin-top:0; color:var(--kite-dark)">Poster Ready!</h3>
-            <canvas id="finalCanvas"></canvas>
-            
-            <a id="downloadBtn" class="btn-main btn-download">Download Image 📥</a>
-            
-            <button onclick="location.reload()" style="background:none; border:none; color:#777; text-decoration:underline; margin-top:15px; cursor:pointer;">
-                Create New
-            </button>
-        </div>
-
+        <label for="fileInput" class="btn-upload">
+            📷 Upload Student Photo
+        </label>
+        <input type="file" id="fileInput" accept="image/*">
     </div>
 
-    <!-- Footer -->
-    <footer>
-        Developed by <span class="developer-credit">KITE Kasaragod</span>
-    </footer>
+    <div id="result-area">
+        <canvas id="finalCanvas"></canvas>
+        <br>
+        <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Download Poster 📥</a>
+        <br><br>
+        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline;">Make Another</button>
+    </div>
 
-    <!-- Photo Adjustment Modal -->
-    <div id="photoModal">
-        <div class="modal-header">
-            Drag & Pinch photo to fit in the circle
+    <div id="editorModal">
+        <div style="color:white; text-align:center; padding:10px; background:#111;">
+            Adjust Photo Position
         </div>
-        <div class="modal-body">
-            <!-- The User Image -->
-            <img id="imageToEdit" src="" style="max-width:100%; display:block;">
-            <!-- The Template Overlay -->
-            <div class="overlay-preview"></div>
+        <div class="crop-workspace">
+            <img id="imageToCrop" src="">
+            <div class="overlay-guide"></div>
         </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-            <button class="btn-confirm" onclick="generateFinalPoster()">Done ✅</button>
+        <div class="editor-controls">
+            <button class="btn-modal btn-cancel" onclick="closeEditor()">Cancel</button>
+            <button class="btn-modal btn-save" onclick="generatePoster()">Generate ✅</button>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    
     <script>
-        // =========================================================
-        // ⚙️ POSTER CONFIGURATION - ADJUST SETTINGS HERE
-        // =========================================================
-        const POSTER_CONFIG = {
-            // 1. STUDENT NAME SETTINGS
-name: {
-    y: 1548,               // Calculated Vertical Center
-    fontSize: 55,          
-    color: '#004d40',      
-    fontFamily: 'Manjari', 
-    fontWeight: 'bold',
-    textAlign: 'center',   // Ensure this is set to center the X-axis at 850
-    x: 850                 // Calculated Horizontal Center
-}
+        // CONFIGURATION
+        const CONFIG = {
+            name: {
+                x: 850,
+                y: 1565, 
+                size: 55,
+                color: '#004d40',
+                font: 'Noto Sans Malayalam' 
             },
-
-           // 2. SCHOOL NAME SETTINGS
-school: {
-    x: 847.5,           // Horizontal Center
-    y: 1866.5,         // Vertical Center
-    fontSize: 35,
-    color: '#444444',
-    fontFamily: 'Manjari',
-    fontWeight: 'normal',
-    textAlign: 'center' // Ensure text aligns to the x-coordinate
+            school: {
+                x: 850,
+                y: 1650,
+                size: 40,
+                color: '#555555',
+                font: 'Manjari'
             }
         };
-        // =========================================================
 
-        // DOM Elements
         const fileInput = document.getElementById('fileInput');
         const nameInput = document.getElementById('nameInput');
         const schoolInput = document.getElementById('schoolInput');
-        const photoModal = document.getElementById('photoModal');
-        const imageToEdit = document.getElementById('imageToEdit');
-        const inputForm = document.getElementById('inputForm');
-        const resultArea = document.getElementById('resultArea');
+        const editorModal = document.getElementById('editorModal');
+        const imageToCrop = document.getElementById('imageToCrop');
         const finalCanvas = document.getElementById('finalCanvas');
         const downloadBtn = document.getElementById('downloadBtn');
+        const inputSection = document.getElementById('inputSection');
+        const loadingDiv = document.getElementById('loading');
 
         let cropper = null;
         let templateImg = new Image();
-        
-        // Load Template
-        templateImg.src = 'template.png'; 
+        let templateLoaded = false;
 
-        // 1. Listen for File Upload
-        fileInput.addEventListener('change', function(e) {
-            // Simple Validation
+        // Force load template immediately
+        templateImg.crossOrigin = "Anonymous";
+        templateImg.src = 'template.png';
+        templateImg.onload = () => { templateLoaded = true; };
+
+        fileInput.addEventListener('change', (e) => {
             if(nameInput.value.trim() === "" || schoolInput.value.trim() === "") {
-                alert("Please enter Name and School first.");
-                this.value = ""; // Reset
+                alert("Please enter Name and School first!");
+                fileInput.value = "";
                 return;
             }
 
             const file = e.target.files[0];
             if (file) {
+                loadingDiv.style.display = 'block'; // Show loading
+                
                 const reader = new FileReader();
-                reader.onload = function(event) {
-                    imageToEdit.src = event.target.result;
-                    openPhotoEditor();
+                reader.onload = (evt) => {
+                    // Set the image source
+                    imageToCrop.src = evt.target.result;
+                    
+                    // IMPORTANT: Wait for image to load before opening editor
+                    imageToCrop.onload = () => {
+                        loadingDiv.style.display = 'none';
+                        openEditor();
+                    };
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // 2. Open the "Drag & Pinch" Editor
-        function openPhotoEditor() {
-            photoModal.style.display = 'flex';
+        function openEditor() {
+            editorModal.style.display = 'flex';
             
-            // Wait for modal to render
-            setTimeout(() => {
-                if(cropper) cropper.destroy();
+            // Calculate aspect ratio safely
+            let aspectRatio = 1; // Default square
+            if(templateLoaded && templateImg.width > 0 && templateImg.height > 0) {
+                aspectRatio = templateImg.width / templateImg.height;
+            }
 
-                cropper = new Cropper(imageToEdit, {
-                    aspectRatio: templateImg.width / templateImg.height, // Match template
-                    viewMode: 0, // Allow free movement
-                    dragMode: 'move', // Default to dragging immediately
-                    
-                    // HIDE THE CROPPER VISUALS (Make it look like a preview)
-                    guides: false,
-                    center: false,
-                    background: false,
-                    highlight: false,
-                    cropBoxMovable: false,
-                    cropBoxResizable: false,
-                    toggleDragModeOnDblclick: false,
-                    autoCropArea: 1, // Fill screen
-                    
-                    ready() {
-                        // Force the "crop box" to fill the container so user sees full image
-                        this.cropper.setCropBoxData({
-                            width: this.cropper.getContainerData().width,
-                            height: this.cropper.getContainerData().height,
-                            left: 0,
-                            top: 0
-                        });
-                    }
-                });
-            }, 100);
-        }
-
-        // 3. Close Modal
-        function closeModal() {
-            photoModal.style.display = 'none';
-            fileInput.value = "";
             if(cropper) cropper.destroy();
+
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: aspectRatio,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                background: false,
+                ready() {
+                    // Force the crop box to fill the view
+                    this.cropper.setCropBoxData({
+                        width: this.cropper.getContainerData().width,
+                        height: this.cropper.getContainerData().height
+                    });
+                }
+            });
         }
 
-        // 4. Generate the Final Poster
-        function generateFinalPoster() {
+        function closeEditor() {
+            editorModal.style.display = 'none';
+            if(cropper) cropper.destroy();
+            fileInput.value = "";
+        }
+
+        function generatePoster() {
             if (!cropper) return;
 
-            // A. Get the user's photo (positioned correctly)
-            const userPhotoCanvas = cropper.getCroppedCanvas({
-                width: templateImg.width,
-                height: templateImg.height,
-                imageSmoothingQuality: 'high'
+            // Use template dimensions if available, else fallback to 1080x1080
+            const tWidth = templateLoaded ? templateImg.width : 1080;
+            const tHeight = templateLoaded ? templateImg.height : 1080;
+
+            const userCanvas = cropper.getCroppedCanvas({
+                width: tWidth,
+                height: tHeight,
             });
 
-            // B. Setup Final Canvas
-            finalCanvas.width = templateImg.width;
-            finalCanvas.height = templateImg.height;
+            finalCanvas.width = tWidth;
+            finalCanvas.height = tHeight;
             const ctx = finalCanvas.getContext('2d');
 
-            // Layer 1: User Photo
-            ctx.drawImage(userPhotoCanvas, 0, 0);
+            // 1. Draw User Photo
+            ctx.drawImage(userCanvas, 0, 0);
 
-            // Layer 2: Template Overlay
-            ctx.drawImage(templateImg, 0, 0);
+            // 2. Draw Template (only if loaded)
+            if(templateLoaded) {
+                ctx.drawImage(templateImg, 0, 0);
+            }
 
-            // Layer 3: Text
-            drawTextLayer(ctx);
+            // 3. Draw Text
+            drawText(ctx, tWidth);
 
-            // C. Show Result
-            photoModal.style.display = 'none';
-            inputForm.style.display = 'none'; // Hide inputs
-            resultArea.style.display = 'block'; // Show poster
+            editorModal.style.display = 'none';
+            inputSection.style.display = 'none'; 
+            document.getElementById('result-area').style.display = 'block';
 
-            // Setup Download
             downloadBtn.href = finalCanvas.toDataURL('image/png');
         }
 
-        // Helper: Draw Text based on Config
-        function drawTextLayer(ctx) {
+        function drawText(ctx, canvasWidth) {
             ctx.textAlign = 'center';
-            const centerX = finalCanvas.width / 2;
+            
+            const nameX = CONFIG.name.x ? CONFIG.name.x : (canvasWidth / 2);
+            ctx.font = `bold ${CONFIG.name.size}px '${CONFIG.name.font}', sans-serif`;
+            ctx.fillStyle = CONFIG.name.color;
+            ctx.fillText(nameInput.value, nameX, CONFIG.name.y);
 
-            // 1. Draw Name
-            ctx.font = `${POSTER_CONFIG.name.fontWeight} ${POSTER_CONFIG.name.fontSize}px '${POSTER_CONFIG.name.fontFamily}'`;
-            ctx.fillStyle = POSTER_CONFIG.name.color;
-            ctx.fillText(nameInput.value, centerX, POSTER_CONFIG.name.y);
-
-            // 2. Draw School
-            ctx.font = `${POSTER_CONFIG.school.fontWeight} ${POSTER_CONFIG.school.fontSize}px '${POSTER_CONFIG.school.fontFamily}'`;
-            ctx.fillStyle = POSTER_CONFIG.school.color;
-            ctx.fillText(schoolInput.value, centerX, POSTER_CONFIG.school.y);
+            const schoolX = CONFIG.school.x ? CONFIG.school.x : (canvasWidth / 2);
+            ctx.font = `${CONFIG.school.size}px '${CONFIG.school.font}', sans-serif`;
+            ctx.fillStyle = CONFIG.school.color;
+            ctx.fillText(schoolInput.value, schoolX, CONFIG.school.y);
         }
     </script>
 </body>
