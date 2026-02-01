@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Little KITES Camp Selection Generator</title>
     
-    <!-- Cropper.js for photo editing -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -28,9 +26,6 @@
             min-height: 100vh;
         }
 
-        h1 { color: var(--dark); margin: 0; font-size: 1.5rem; text-align: center; }
-        p { color: #555; margin-top: 5px; font-size: 0.9rem; text-align: center; }
-
         .card {
             background: white;
             padding: 20px;
@@ -41,7 +36,7 @@
             box-sizing: border-box;
         }
 
-        .input-group { margin-bottom: 15px; width: 100%; }
+        .input-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--dark); font-size: 0.9rem; }
         
         input[type="text"] {
@@ -64,21 +59,12 @@
             justify-content: center;
             gap: 10px;
             cursor: pointer;
-            width: 100%;
-            box-sizing: border-box;
             box-shadow: 0 4px 10px rgba(0, 137, 123, 0.3);
         }
         input[type="file"] { display: none; }
 
-        /* Preview Area */
-        #result-area {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-        canvas { width: 100%; height: auto; border-radius: 15px; }
+        #result-area { display: none; text-align: center; width: 100%; max-width: 400px; }
+        canvas { width: 100%; height: auto; border-radius: 15px; border: 1px solid #ddd; }
 
         .btn-download {
             display: inline-block;
@@ -89,89 +75,31 @@
             border-radius: 50px;
             font-weight: bold;
             margin-top: 15px;
-            box-shadow: 0 4px 10px rgba(255, 111, 0, 0.3);
         }
 
-        /* --- EDITOR MODAL --- */
         #editorModal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: #000;
-            z-index: 9999; /* Super high priority */
-            display: none; /* Hidden by default */
+            z-index: 9999;
+            display: none;
             flex-direction: column;
         }
 
-        .crop-workspace {
-            flex: 1;
-            position: relative;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        /* Ensure image fits within workspace */
-        #imageToCrop {
-            max-width: 100%;
-            max-height: 80vh; 
-            display: block;
-        }
-
-        .overlay-guide {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            background-image: url('template.png');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.4;
-            z-index: 2;
-        }
-
-        .editor-controls {
-            padding: 20px;
-            background: #111;
-            display: flex;
-            gap: 15px;
-            z-index: 3;
-        }
-
-        .btn-modal {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-        }
+        .crop-workspace { flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #imageToCrop { max-width: 100%; max-height: 80vh; display: block; }
+        .editor-controls { padding: 20px; background: #111; display: flex; gap: 15px; }
+        .btn-modal { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-cancel { background: #424242; color: white; }
         .btn-save { background: var(--primary); color: white; }
-
-        /* Loading Indicator */
-        #loading {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 10000;
-        }
-
-
+        #loading { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; z-index: 10000; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Little KITES Selection</h1>
-        <p>Poster Generator</p>
+    <header style="text-align:center; margin-bottom:20px;">
+        <h1 style="color:var(--dark); margin:0;">Little KITES Selection</h1>
+        <p style="color:#555;">Poster Generator</p>
     </header>
 
     <div id="loading">Processing Image...</div>
@@ -186,9 +114,7 @@
             <input type="text" id="schoolInput" placeholder="Ex: GHSS Nileshwar">
         </div>
 
-        <label for="fileInput" class="btn-upload">
-            📷 Upload Student Photo
-        </label>
+        <label for="fileInput" class="btn-upload">📷 Upload Student Photo</label>
         <input type="file" id="fileInput" accept="image/*">
     </div>
 
@@ -197,16 +123,13 @@
         <br>
         <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Download Poster 📥</a>
         <br><br>
-        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline;">Make Another</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer;">Make Another</button>
     </div>
 
     <div id="editorModal">
-        <div style="color:white; text-align:center; padding:10px; background:#111;">
-            Adjust Photo Position
-        </div>
+        <div style="color:white; text-align:center; padding:10px; background:#111;">Adjust Photo Position</div>
         <div class="crop-workspace">
             <img id="imageToCrop" src="">
-            <div class="overlay-guide"></div>
         </div>
         <div class="editor-controls">
             <button class="btn-modal btn-cancel" onclick="closeEditor()">Cancel</button>
@@ -217,19 +140,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         const CONFIG = {
-    name: {
-        y: 1565,
-        size: 55,
-        color: '#004d40',
-        font: 'Noto Sans Malayalam'
-    },
-    school: {
-        y: 1650,
-        size: 40,
-        color: '#555555',
-        font: 'Manjari'
-    }
-};
+            name: { y: 1565, size: 55, color: '#004d40', font: 'Noto Sans Malayalam' },
+            school: { y: 1650, size: 40, color: '#555555', font: 'Manjari' }
+        };
 
         const fileInput = document.getElementById('fileInput');
         const nameInput = document.getElementById('nameInput');
@@ -245,67 +158,47 @@
         let templateImg = new Image();
         let templateLoaded = false;
 
-        // Force load template immediately
         templateImg.crossOrigin = "Anonymous";
-        templateImg.src = 'template.png';
-       templateImg.onload = () => {
-    templateLoaded = true;
-};
-
-templateImg.onerror = () => {
-    alert("Poster template not found. Please keep template.png in the same folder.");
-};
-
+        templateImg.src = 'template.png'; // MUST BE IN SAME FOLDER
+        templateImg.onload = () => { templateLoaded = true; };
+        templateImg.onerror = () => { alert("Warning: template.png not found in this folder."); };
 
         fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0]; // THIS WAS MISSING
+            if (!file) return;
+
             if(nameInput.value.trim() === "" || schoolInput.value.trim() === "") {
                 alert("Please enter Name and School first!");
                 fileInput.value = "";
                 return;
             }
 
-            // Limit image size (5MB)
-if (file.size > 5 * 1024 * 1024) {
-    alert("Please select an image smaller than 5MB");
-    fileInput.value = "";
-    return;
-}
-
-            if (file) {
-                loadingDiv.style.display = 'block'; // Show loading
-                
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    // Set the image source
-                    imageToCrop.src = evt.target.result;
-                    
-                    // IMPORTANT: Wait for image to load before opening editor
-                    imageToCrop.onload = () => {
-                        loadingDiv.style.display = 'none';
-                        openEditor();
-                    };
+            loadingDiv.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                imageToCrop.src = evt.target.result;
+                imageToCrop.onload = () => {
+                    loadingDiv.style.display = 'none';
+                    openEditor();
                 };
-                reader.readAsDataURL(file);
-            }
+            };
+            reader.readAsDataURL(file);
         });
 
-       function openEditor() {
-    editorModal.style.display = 'flex';
-    
-    // This ensures the image is ready for Cropper
-    if(cropper) cropper.destroy();
+        function openEditor() {
+            editorModal.style.display = 'flex';
+            if(cropper) cropper.destroy();
+            
+            // Calculate aspect ratio from template or default to 1:1
+            const ratio = templateLoaded ? templateImg.width / templateImg.height : 1;
 
-    cropper = new Cropper(imageToCrop, {
-        aspectRatio: templateImg.width / templateImg.height || 1,
-        viewMode: 1,
-        dragMode: 'move',
-        autoCropArea: 1,
-        checkOrientation: false, // Helps with mobile phone photos
-        ready() {
-            console.log("Cropper is ready!");
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: ratio,
+                viewMode: 1,
+                autoCropArea: 1
+            });
         }
-    });
-}
+
         function closeEditor() {
             editorModal.style.display = 'none';
             if(cropper) cropper.destroy();
@@ -314,71 +207,35 @@ if (file.size > 5 * 1024 * 1024) {
 
         function generatePoster() {
             if (!cropper) return;
-
-            // Use template dimensions if available, else fallback to 1080x1080
             const tWidth = templateLoaded ? templateImg.width : 1080;
             const tHeight = templateLoaded ? templateImg.height : 1080;
 
-            const userCanvas = cropper.getCroppedCanvas({
-                width: tWidth,
-                height: tHeight,
-            });
-
+            const userCanvas = cropper.getCroppedCanvas({ width: tWidth, height: tHeight });
             finalCanvas.width = tWidth;
             finalCanvas.height = tHeight;
             const ctx = finalCanvas.getContext('2d');
 
-            // 1. Draw User Photo
             ctx.drawImage(userCanvas, 0, 0);
-
-            // 2. Draw Template (only if loaded)
-            if(templateLoaded) {
-                ctx.drawImage(templateImg, 0, 0);
-            }
-
-            // 3. Draw Text
+            if(templateLoaded) ctx.drawImage(templateImg, 0, 0);
+            
             drawText(ctx, tWidth);
 
             editorModal.style.display = 'none';
             inputSection.style.display = 'none'; 
             document.getElementById('result-area').style.display = 'block';
-
             downloadBtn.href = finalCanvas.toDataURL('image/png');
         }
 
         function drawText(ctx, canvasWidth) {
-    ctx.textAlign = 'center';
-
-    // Student Name
-    ctx.font = `bold ${CONFIG.name.size}px '${CONFIG.name.font}', sans-serif`;
-    ctx.fillStyle = CONFIG.name.color;
-    ctx.fillText(
-        nameInput.value,
-        canvasWidth / 2,
-        CONFIG.name.y
-    );
-
-    // School Name
-    ctx.font = `${CONFIG.school.size}px '${CONFIG.school.font}', sans-serif`;
-    ctx.fillStyle = CONFIG.school.color;
-    ctx.fillText(
-        schoolInput.value,
-        canvasWidth / 2,
-        CONFIG.school.y
-    );
-}
-
             ctx.textAlign = 'center';
-            
-            const nameX = CONFIG.name.x ? CONFIG.name.x : (canvasWidth / 2);
+            // Draw Name
             ctx.font = `bold ${CONFIG.name.size}px '${CONFIG.name.font}', sans-serif`;
             ctx.fillStyle = CONFIG.name.color;
-            ctx.fillText(nameInput.value, nameX, CONFIG.name.y);
-
-            const schoolX = CONFIG.school.x ? CONFIG.school.x : (canvasWidth / 2);
+            ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
+            // Draw School
             ctx.font = `${CONFIG.school.size}px '${CONFIG.school.font}', sans-serif`;
             ctx.fillStyle = CONFIG.school.color;
-            ctx.fillText(schoolInput.value, schoolX, CONFIG.school.y);
+            ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
         }
     </script>
 </body>
