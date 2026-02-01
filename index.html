@@ -265,7 +265,14 @@
         // Force load template immediately
         templateImg.crossOrigin = "Anonymous";
         templateImg.src = 'template.png';
-        templateImg.onload = () => { templateLoaded = true; };
+       templateImg.onload = () => {
+    templateLoaded = true;
+};
+
+templateImg.onerror = () => {
+    alert("Poster template not found. Please keep template.png in the same folder.");
+};
+
 
         fileInput.addEventListener('change', (e) => {
             if(nameInput.value.trim() === "" || schoolInput.value.trim() === "") {
