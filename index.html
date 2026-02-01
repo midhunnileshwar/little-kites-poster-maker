@@ -27,20 +27,11 @@
             align-items: center;
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            margin-top: 10px;
-        }
-
-        header h1 {
-            color: var(--dark);
-            margin: 0;
-            font-size: 1.6rem;
-            letter-spacing: -0.5px;
-        }
+        header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        header h1 { color: var(--dark); margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
 
         .card {
             background: var(--glass);
@@ -64,14 +55,7 @@
             border-radius: 12px;
             font-size: 1rem;
             box-sizing: border-box;
-            transition: all 0.3s ease;
             background: white;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(0, 137, 123, 0.1);
-            outline: none;
         }
 
         .btn-upload {
@@ -85,11 +69,8 @@
             justify-content: center;
             gap: 12px;
             cursor: pointer;
-            transition: transform 0.2s;
             box-shadow: 0 6px 20px rgba(0, 137, 123, 0.2);
         }
-
-        .btn-upload:active { transform: scale(0.97); }
         input[type="file"] { display: none; }
 
         #result-area { display: none; text-align: center; width: 100%; max-width: 420px; animation: fadeIn 0.5s ease; }
@@ -125,11 +106,11 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
+            overflow: hidden;
         }
 
         #imageToCrop { max-width: 100%; display: block; }
 
-        /* The Ghost Template Overlay */
         .template-overlay {
             position: absolute;
             top: 50%;
@@ -137,9 +118,9 @@
             transform: translate(-50%, -50%);
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Crucial: clicks go through to the cropper */
+            pointer-events: none;
             z-index: 10;
-            opacity: 0.5; /* Adjusted opacity to see both layers */
+            opacity: 0.6;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -153,14 +134,7 @@
             padding-bottom: env(safe-area-inset-bottom, 25px);
         }
 
-        .btn-modal { 
-            flex: 1; 
-            padding: 16px; 
-            border: none; 
-            border-radius: 14px; 
-            font-weight: 600; 
-            font-size: 1rem;
-        }
+        .btn-modal { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: 600; font-size: 1rem; }
         .btn-cancel { background: #333; color: #ccc; }
         .btn-save { background: var(--primary); color: white; }
 
@@ -170,14 +144,19 @@
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
             background: rgba(0,0,0,0.85); 
-            backdrop-filter: blur(5px);
             color: white; 
             padding: 30px; 
             border-radius: 20px; 
             z-index: 10001; 
             text-align: center;
-            font-weight: 600;
         }
+
+        /* Hide Cropper's default box to rely on our Ghost Template */
+        .cropper-view-box, .cropper-face {
+            outline: none !important;
+            background-color: transparent !important;
+        }
+        .cropper-line, .cropper-point { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -185,11 +164,11 @@
 <body>
 
     <header>
-        <h1>Little KITES</h1>
-        <p style="margin:2px 0; font-size: 0.9rem; opacity: 0.8;">Camp Selection Poster Pro</p>
+        <h1>Little KITES V1.0</h1>
+        <p style="margin:2px 0; font-size: 0.9rem; opacity: 0.8;">Camp Poster Designer</p>
     </header>
 
-    <div id="loading">✨ Generating Poster...</div>
+    <div id="loading">✨ Finalizing Poster...</div>
 
     <div class="card" id="inputSection">
         <div class="input-group">
@@ -202,24 +181,20 @@
         </div>
 
         <label for="fileInput" class="btn-upload">
-            <span>📷</span> Start Creating
+            <span>📷</span> Upload & Adjust
         </label>
         <input type="file" id="fileInput" accept="image/*">
-        
-        <p style="font-size: 0.75rem; text-align: center; margin-top: 15px; color: #78909c;">
-            Recommended: Use a clear portrait photo
-        </p>
     </div>
 
     <div id="result-area">
         <canvas id="finalCanvas"></canvas>
-        <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Save to Gallery 📥</a>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--dark); font-weight:600; text-decoration:underline; cursor:pointer; margin-top: 20px; font-size: 0.9rem;">Create Another One</button>
+        <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Save to Phone 📥</a>
+        <button onclick="location.reload()" style="background:none; border:none; color:var(--dark); font-weight:600; text-decoration:underline; cursor:pointer; margin-top: 20px;">Create New Poster</button>
     </div>
 
     <div id="editorModal">
-        <div style="color:white; text-align:center; padding:15px; background:rgba(0,0,0,0.5); font-size: 0.8rem; z-index: 11;">
-            Pinch to Zoom & Drag to Align with the Guide
+        <div style="color:white; text-align:center; padding:15px; background:rgba(0,0,0,0.7); font-size: 0.8rem; z-index: 11;">
+            Pinch/Scale photo to fit inside the frame
         </div>
         <div class="crop-workspace" id="cropWorkspace">
             <img id="imageToCrop">
@@ -227,7 +202,7 @@
         </div>
         <div class="editor-controls">
             <button class="btn-modal btn-cancel" onclick="closeEditor()">Cancel</button>
-            <button class="btn-modal btn-save" onclick="generatePoster()">Apply ✅</button>
+            <button class="btn-modal btn-save" onclick="generatePoster()">Done ✅</button>
         </div>
     </div>
 
@@ -253,7 +228,6 @@
         let templateImg = new Image();
         let templateLoaded = false;
 
-        // Preload Template
         templateImg.crossOrigin = "Anonymous";
         templateImg.src = 'template.png'; 
         templateImg.onload = () => { 
@@ -264,13 +238,11 @@
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             if(!nameInput.value.trim() || !schoolInput.value.trim()) {
-                alert("Please fill in the Name and School details first!");
+                alert("Please fill details first!");
                 fileInput.value = "";
                 return;
             }
-
             loadingDiv.style.display = 'block';
             const reader = new FileReader();
             reader.onload = (evt) => {
@@ -291,17 +263,20 @@
 
             cropper = new Cropper(imageToCrop, {
                 aspectRatio: ratio,
-                viewMode: 1,
+                viewMode: 0, // CRITICAL: Allows image to be smaller than the canvas
                 dragMode: 'move',
                 touchDragZoom: true,
                 autoCropArea: 1,
+                restore: false,
                 guides: false,
                 center: false,
                 highlight: false,
                 cropBoxMovable: false,
                 cropBoxResizable: false,
                 toggleDragModeOnDblclick: false,
-                background: false
+                background: false,
+                minCanvasWidth: 0, // Allows extreme shrinking
+                minCanvasHeight: 0
             });
         }
 
@@ -315,7 +290,6 @@
             if (!cropper) return;
             loadingDiv.style.display = 'block';
 
-            // Small delay to let loading UI show
             setTimeout(() => {
                 const tWidth = templateLoaded ? templateImg.width : 1080;
                 const tHeight = templateLoaded ? templateImg.height : 1080;
@@ -323,37 +297,32 @@
                 const userCanvas = cropper.getCroppedCanvas({ 
                     width: tWidth, 
                     height: tHeight,
-                    imageSmoothingQuality: 'high'
+                    imageSmoothingQuality: 'high',
+                    fillColor: '#fff' // Background color if photo doesn't fill the frame
                 });
 
                 finalCanvas.width = tWidth;
                 finalCanvas.height = tHeight;
                 const ctx = finalCanvas.getContext('2d');
 
-                // Draw Cropped Photo
                 ctx.drawImage(userCanvas, 0, 0);
-
-                // Draw Template Overlay
                 if(templateLoaded) ctx.drawImage(templateImg, 0, 0);
                 
-                // Draw Text
                 drawText(ctx, tWidth);
 
                 loadingDiv.style.display = 'none';
                 editorModal.style.display = 'none';
                 inputSection.style.display = 'none'; 
                 document.getElementById('result-area').style.display = 'block';
-                downloadBtn.href = finalCanvas.toDataURL('image/png', 0.9);
+                downloadBtn.href = finalCanvas.toDataURL('image/png', 1.0);
             }, 100);
         }
 
         function drawText(ctx, canvasWidth) {
             ctx.textAlign = 'center';
-            // Student Name
             ctx.font = `bold ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
             ctx.fillStyle = CONFIG.name.color;
             ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
-            // School Name
             ctx.font = `600 ${CONFIG.school.size}px 'Manjari', sans-serif`;
             ctx.fillStyle = CONFIG.school.color;
             ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
