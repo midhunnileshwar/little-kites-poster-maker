@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Little KITES Camp Selection Generator</title>
+    
+    <!-- Cropper.js for photo editing -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <!-- Google Fonts including Malayalam support -->
+    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #00897b; /* KITE Green/Teal */
+            --accent: #ff6f00;  /* Orange Accent */
+            --dark: #004d40;
+            --bg: #e0f2f1;
+        }
+
+        body {
+            font-family: 'Noto Sans Malayalam', 'Manjari', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--dark);
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        p {
+            color: #555;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Main Form Card */
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Inputs */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #b2dfdb;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box; /* Fixes padding issues */
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Upload Button */
+        .btn-upload {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0, 137, 123, 0.3);
+        }
+
+        .btn-upload:active { transform: scale(0.98); }
+        input[type="file"] { display: none; }
+
+        /* Preview Area */
+        #result-area {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-download {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(255, 111, 0, 0.3);
+        }
+
+        /* Editor Modal */
+        #editorModal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #111;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .crop-workspace {
+            flex: 1;
+            position: relative;
+            background: #000;
+        }
+
+        /* Overlay Guide inside Editor */
+        .overlay-guide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: url('template.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.4; /* See-through guide */
+        }
+
+        .editor-controls {
+            padding: 20px;
+            background: #222;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn-cancel { background: #424242; color: white; }
+        .btn-save { background: var(--primary); color: white; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Little KITES Selection</h1>
+        <p>Generate a congratulatory poster for your students.</p>
+    </header>
+
+    <div class="card" id="inputSection">
+        <!-- Input 1: Student Name -->
+        <div class="input-group">
+            <label>Student Name (മലയാളം/English)</label>
+            <input type="text" id="nameInput" placeholder="Ex: Adhithyan K">
+        </div>
+
+        <!-- Input 2: School Name -->
+        <div class="input-group">
+            <label>School Name</label>
+            <input type="text" id="schoolInput" placeholder="Ex: GHSS Nileshwar">
+        </div>
+
+        <!-- Input 3: Photo Upload -->
+        <label for="fileInput" class="btn-upload">
+            📷 Upload Student Photo
+        </label>
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <!-- Result Area -->
+    <div id="result-area">
+        <canvas id="finalCanvas"></canvas>
+        <br>
+        <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Download Poster 📥</a>
+        <br><br>
+        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline;">Make Another</button>
+    </div>
+
+    <!-- Hidden Editor Modal -->
+    <div id="editorModal">
+        <div style="color:white; text-align:center; padding:10px;">Adjust Photo position</div>
+        <div class="crop-workspace">
+            <img id="imageToCrop" src="" style="max-width:100%; display:block;">
+            <div class="overlay-guide"></div>
+        </div>
+        <div class="editor-controls">
+            <button class="btn-modal btn-cancel" onclick="closeEditor()">Cancel</button>
+            <button class="btn-modal btn-save" onclick="generatePoster()">Generate ✅</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        // ==========================================
+        // 🛠️ CONFIGURATION - EDIT THESE NUMBERS
+        // ==========================================
+        const CONFIG = {
+            // Where should the Student Name appear?
+            name: {
+                y: 920,          // Vertical position (pixels from top)
+                size: 55,        // Font size
+                color: '#004d40',// Dark Green
+                font: 'Noto Sans Malayalam' 
+            },
+            // Where should the School Name appear?
+            school: {
+                y: 1000,         // Vertical position
+                size: 35,        // Font size
+                color: '#555555',// Grey
+                font: 'Manjari'
+            }
+        };
+
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const nameInput = document.getElementById('nameInput');
+        const schoolInput = document.getElementById('schoolInput');
+        const editorModal = document.getElementById('editorModal');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const finalCanvas = document.getElementById('finalCanvas');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const inputSection = document.getElementById('inputSection');
+
+        let cropper = null;
+        let templateImg = new Image();
+        
+        // Load the template.png
+        templateImg.src = 'template.png';
+
+        // 1. Handle File Upload
+        fileInput.addEventListener('change', (e) => {
+            // Validation
+            if(nameInput.value.trim() === "" || schoolInput.value.trim() === "") {
+                alert("Please enter Name and School first!");
+                fileInput.value = ""; // Reset file input
+                return;
+            }
+
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    imageToCrop.src = evt.target.result;
+                    openEditor();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function openEditor() {
+            editorModal.style.display = 'flex';
+            setTimeout(() => {
+                if(cropper) cropper.destroy();
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: templateImg.width / templateImg.height, 
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    ready() {
+                        // Align crop box with container to act as full canvas
+                        this.cropper.setCropBoxData({
+                            width: this.cropper.getContainerData().width,
+                            height: this.cropper.getContainerData().height
+                        });
+                    }
+                });
+            }, 100);
+        }
+
+        function closeEditor() {
+            editorModal.style.display = 'none';
+            if(cropper) cropper.destroy();
+            fileInput.value = "";
+        }
+
+        // 2. Generate Final Poster
+        function generatePoster() {
+            if (!cropper) return;
+
+            // Step A: Get Cropped User Photo
+            // We scale it to match the template dimensions exactly
+            const userCanvas = cropper.getCroppedCanvas({
+                width: templateImg.width,
+                height: templateImg.height,
+            });
+
+            // Step B: Setup Final Canvas
+            finalCanvas.width = templateImg.width;
+            finalCanvas.height = templateImg.height;
+            const ctx = finalCanvas.getContext('2d');
+
+            // 1. Draw User Photo (Bottom Layer)
+            ctx.drawImage(userCanvas, 0, 0);
+
+            // 2. Draw Template (Middle Layer)
+            ctx.drawImage(templateImg, 0, 0);
+
+            // 3. Draw Text (Top Layer)
+            drawText(ctx);
+
+            // Step C: Show Result
+            editorModal.style.display = 'none';
+            inputSection.style.display = 'none'; // Hide form
+            document.getElementById('result-area').style.display = 'block';
+
+            // Setup Download
+            downloadBtn.href = finalCanvas.toDataURL('image/png');
+        }
+
+        function drawText(ctx) {
+            // Center alignment for text
+            ctx.textAlign = 'center';
+            const centerX = finalCanvas.width / 2;
+
+            // Draw Student Name
+            ctx.font = `bold ${CONFIG.name.size}px '${CONFIG.name.font}', sans-serif`;
+            ctx.fillStyle = CONFIG.name.color;
+            ctx.fillText(nameInput.value, centerX, CONFIG.name.y);
+
+            // Draw School Name
+            ctx.font = `${CONFIG.school.size}px '${CONFIG.school.font}', sans-serif`;
+            ctx.fillStyle = CONFIG.school.color;
+            ctx.fillText(schoolInput.value, centerX, CONFIG.school.y);
+        }
+    </script>
+</body>
+</html>
