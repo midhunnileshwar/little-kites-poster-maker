@@ -119,7 +119,7 @@
 <body>
 
     <header>
-        <h1>Little KITES V3.1</h1>
+        <h1>Little KITES V3.2</h1>
         <p style="margin:2px 0; font-size: 0.9rem; opacity: 0.8;">Camp Poster Designer</p>
     </header>
 
@@ -245,21 +245,7 @@
             reader.readAsDataURL(file);
         });
 
-        function openEditor() {
-            editorModal.style.display = 'flex';
-            if(cropper) cropper.destroy();
-            const ratio = templateLoaded ? templateImg.width / templateImg.height : 1;
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: ratio,
-                viewMode: 0,
-                dragMode: 'move',
-                touchDragZoom: true,
-                autoCropArea: 1,
-                background: false,
-                minCanvasWidth: 0,
-                minCanvasHeight: 0
-            });
-        }
+        v
 
         function closeEditor() {
             editorModal.style.display = 'none';
