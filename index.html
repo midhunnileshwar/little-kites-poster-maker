@@ -289,33 +289,23 @@ if (file.size > 5 * 1024 * 1024) {
             }
         });
 
-        function openEditor() {
-            editorModal.style.display = 'flex';
-            
-            // Calculate aspect ratio safely
-            let aspectRatio = 1; // Default square
-            if(templateLoaded && templateImg.width > 0 && templateImg.height > 0) {
-                aspectRatio = templateImg.width / templateImg.height;
-            }
+       function openEditor() {
+    editorModal.style.display = 'flex';
+    
+    // This ensures the image is ready for Cropper
+    if(cropper) cropper.destroy();
 
-            if(cropper) cropper.destroy();
-
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: aspectRatio,
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 1,
-                background: false,
-                ready() {
-                    // Force the crop box to fill the view
-                    this.cropper.setCropBoxData({
-                        width: this.cropper.getContainerData().width,
-                        height: this.cropper.getContainerData().height
-                    });
-                }
-            });
+    cropper = new Cropper(imageToCrop, {
+        aspectRatio: templateImg.width / templateImg.height || 1,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 1,
+        checkOrientation: false, // Helps with mobile phone photos
+        ready() {
+            console.log("Cropper is ready!");
         }
-
+    });
+}
         function closeEditor() {
             editorModal.style.display = 'none';
             if(cropper) cropper.destroy();
