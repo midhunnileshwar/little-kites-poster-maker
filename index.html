@@ -3,51 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Little KITES Poster Generator</title>
+    <title>Little KITES Poster Pro</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #00897b; 
             --accent: #ff6f00;  
             --dark: #004d40;
-            --bg: #e0f2f1;
+            --bg: #f0f4f4;
+            --glass: rgba(255, 255, 255, 0.9);
         }
 
         body {
-            font-family: 'Noto Sans Malayalam', 'Manjari', sans-serif;
-            background-color: var(--bg);
+            font-family: 'Poppins', 'Noto Sans Malayalam', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
             margin: 0;
             padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            touch-action: manipulation; /* Prevents double-tap zoom delay */
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            margin-top: 10px;
+        }
+
+        header h1 {
+            color: var(--dark);
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
         }
 
         .card {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 77, 64, 0.1);
             width: 100%;
             max-width: 400px;
             box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--dark); font-size: 0.9rem; }
+        .input-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
         
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #b2dfdb;
-            border-radius: 10px;
+            padding: 14px;
+            border: 2px solid #cfd8dc;
+            border-radius: 12px;
             font-size: 1rem;
             box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 137, 123, 0.1);
             outline: none;
         }
 
@@ -55,20 +78,22 @@
             background: var(--primary);
             color: white;
             padding: 18px;
-            border-radius: 15px;
-            font-weight: bold;
+            border-radius: 16px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 137, 123, 0.3);
-            text-align: center;
+            transition: transform 0.2s;
+            box-shadow: 0 6px 20px rgba(0, 137, 123, 0.2);
         }
+
+        .btn-upload:active { transform: scale(0.97); }
         input[type="file"] { display: none; }
 
-        #result-area { display: none; text-align: center; width: 100%; max-width: 400px; }
-        canvas { width: 100%; height: auto; border-radius: 15px; border: 1px solid #ddd; background: #fff; }
+        #result-area { display: none; text-align: center; width: 100%; max-width: 420px; animation: fadeIn 0.5s ease; }
+        canvas { width: 100%; height: auto; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); background: #fff; }
 
         .btn-download {
             display: block;
@@ -76,13 +101,14 @@
             color: white;
             text-decoration: none;
             padding: 18px;
-            border-radius: 15px;
-            font-weight: bold;
-            margin-top: 15px;
+            border-radius: 16px;
+            font-weight: 700;
+            margin-top: 20px;
             font-size: 1.1rem;
+            box-shadow: 0 6px 20px rgba(255, 111, 0, 0.3);
         }
 
-        /* MOBILE EDITOR MODAL */
+        /* --- ADVANCED EDITOR MODAL --- */
         #editorModal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -95,33 +121,47 @@
         .crop-workspace { 
             flex: 1; 
             position: relative; 
-            background: #000; 
+            background: #111; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            overflow: hidden; 
         }
 
         #imageToCrop { max-width: 100%; display: block; }
 
+        /* The Ghost Template Overlay */
+        .template-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Crucial: clicks go through to the cropper */
+            z-index: 10;
+            opacity: 0.5; /* Adjusted opacity to see both layers */
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
         .editor-controls { 
             padding: 20px; 
-            background: #111; 
+            background: #1a1a1a; 
             display: flex; 
-            gap: 15px; 
-            padding-bottom: env(safe-area-inset-bottom, 20px); /* For iPhones with notches */
+            gap: 12px; 
+            padding-bottom: env(safe-area-inset-bottom, 25px);
         }
 
         .btn-modal { 
             flex: 1; 
-            padding: 18px; 
+            padding: 16px; 
             border: none; 
-            border-radius: 12px; 
-            font-weight: bold; 
+            border-radius: 14px; 
+            font-weight: 600; 
             font-size: 1rem;
-            cursor: pointer; 
         }
-        .btn-cancel { background: #424242; color: white; }
+        .btn-cancel { background: #333; color: #ccc; }
         .btn-save { background: var(--primary); color: white; }
 
         #loading { 
@@ -130,63 +170,72 @@
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
             background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(5px);
             color: white; 
-            padding: 25px; 
-            border-radius: 15px; 
-            z-index: 10000; 
+            padding: 30px; 
+            border-radius: 20px; 
+            z-index: 10001; 
             text-align: center;
+            font-weight: 600;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header style="text-align:center; margin-bottom:20px;">
-        <h1 style="color:var(--dark); margin:0; font-size: 1.4rem;">Little KITES Selection</h1>
-        <p style="color:#555; margin: 5px 0 0 0;">Camp Poster Generator</p>
+    <header>
+        <h1>Little KITES</h1>
+        <p style="margin:2px 0; font-size: 0.9rem; opacity: 0.8;">Camp Selection Poster Pro</p>
     </header>
 
-    <div id="loading">Processing Photo...</div>
+    <div id="loading">✨ Generating Poster...</div>
 
     <div class="card" id="inputSection">
         <div class="input-group">
             <label>Student Name</label>
-            <input type="text" id="nameInput" placeholder="Ex: Adhithyan K">
+            <input type="text" id="nameInput" placeholder="Enter Full Name">
         </div>
         <div class="input-group">
             <label>School Name</label>
-            <input type="text" id="schoolInput" placeholder="Ex: GHSS Nileshwar">
+            <input type="text" id="schoolInput" placeholder="Enter School Name">
         </div>
 
         <label for="fileInput" class="btn-upload">
-            <span>📷</span> Upload Student Photo
+            <span>📷</span> Start Creating
         </label>
         <input type="file" id="fileInput" accept="image/*">
+        
+        <p style="font-size: 0.75rem; text-align: center; margin-top: 15px; color: #78909c;">
+            Recommended: Use a clear portrait photo
+        </p>
     </div>
 
     <div id="result-area">
         <canvas id="finalCanvas"></canvas>
-        <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Download Poster 📥</a>
-        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; margin-top: 20px; font-size: 0.9rem;">Create Another</button>
+        <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Save to Gallery 📥</a>
+        <button onclick="location.reload()" style="background:none; border:none; color:var(--dark); font-weight:600; text-decoration:underline; cursor:pointer; margin-top: 20px; font-size: 0.9rem;">Create Another One</button>
     </div>
 
     <div id="editorModal">
-        <div style="color:white; text-align:center; padding:15px; background:#111; font-size: 0.9rem;">
-            Use two fingers to Pinch & Zoom
+        <div style="color:white; text-align:center; padding:15px; background:rgba(0,0,0,0.5); font-size: 0.8rem; z-index: 11;">
+            Pinch to Zoom & Drag to Align with the Guide
         </div>
-        <div class="crop-workspace">
+        <div class="crop-workspace" id="cropWorkspace">
             <img id="imageToCrop">
+            <div id="ghostOverlay" class="template-overlay"></div>
         </div>
         <div class="editor-controls">
             <button class="btn-modal btn-cancel" onclick="closeEditor()">Cancel</button>
-            <button class="btn-modal btn-save" onclick="generatePoster()">Done ✅</button>
+            <button class="btn-modal btn-save" onclick="generatePoster()">Apply ✅</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         const CONFIG = {
-            name: { y: 1565, size: 55, color: '#004d40', font: 'Noto Sans Malayalam' },
-            school: { y: 1650, size: 40, color: '#555555', font: 'Manjari' }
+            name: { y: 1565, size: 55, color: '#004d40' },
+            school: { y: 1650, size: 40, color: '#455a64' }
         };
 
         const fileInput = document.getElementById('fileInput');
@@ -198,22 +247,26 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const inputSection = document.getElementById('inputSection');
         const loadingDiv = document.getElementById('loading');
+        const ghostOverlay = document.getElementById('ghostOverlay');
 
         let cropper = null;
         let templateImg = new Image();
         let templateLoaded = false;
 
+        // Preload Template
         templateImg.crossOrigin = "Anonymous";
-        templateImg.src = 'template.png';
-        templateImg.onload = () => { templateLoaded = true; };
-        templateImg.onerror = () => { console.error("template.png missing"); };
+        templateImg.src = 'template.png'; 
+        templateImg.onload = () => { 
+            templateLoaded = true;
+            ghostOverlay.style.backgroundImage = `url('template.png')`;
+        };
 
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             if(!nameInput.value.trim() || !schoolInput.value.trim()) {
-                alert("Please enter Name and School first!");
+                alert("Please fill in the Name and School details first!");
                 fileInput.value = "";
                 return;
             }
@@ -234,20 +287,21 @@
             editorModal.style.display = 'flex';
             if(cropper) cropper.destroy();
             
-            // Set crop box to match template shape
             const ratio = templateLoaded ? templateImg.width / templateImg.height : 1;
 
             cropper = new Cropper(imageToCrop, {
                 aspectRatio: ratio,
                 viewMode: 1,
-                dragMode: 'move', // Allows dragging the image
-                touchDragZoom: true, // Enables Pinch Zoom
-                mouseWheelZoom: true,
+                dragMode: 'move',
+                touchDragZoom: true,
                 autoCropArea: 1,
-                background: false,
-                ready() {
-                    // Mobile fix: ensure crop box is correctly sized on load
-                }
+                guides: false,
+                center: false,
+                highlight: false,
+                cropBoxMovable: false,
+                cropBoxResizable: false,
+                toggleDragModeOnDblclick: false,
+                background: false
             });
         }
 
@@ -261,6 +315,7 @@
             if (!cropper) return;
             loadingDiv.style.display = 'block';
 
+            // Small delay to let loading UI show
             setTimeout(() => {
                 const tWidth = templateLoaded ? templateImg.width : 1080;
                 const tHeight = templateLoaded ? templateImg.height : 1080;
@@ -268,7 +323,6 @@
                 const userCanvas = cropper.getCroppedCanvas({ 
                     width: tWidth, 
                     height: tHeight,
-                    imageSmoothingEnabled: true,
                     imageSmoothingQuality: 'high'
                 });
 
@@ -276,31 +330,31 @@
                 finalCanvas.height = tHeight;
                 const ctx = finalCanvas.getContext('2d');
 
-                // Layer 1: Photo
+                // Draw Cropped Photo
                 ctx.drawImage(userCanvas, 0, 0);
 
-                // Layer 2: Template
+                // Draw Template Overlay
                 if(templateLoaded) ctx.drawImage(templateImg, 0, 0);
                 
-                // Layer 3: Text
+                // Draw Text
                 drawText(ctx, tWidth);
 
                 loadingDiv.style.display = 'none';
                 editorModal.style.display = 'none';
                 inputSection.style.display = 'none'; 
                 document.getElementById('result-area').style.display = 'block';
-                downloadBtn.href = finalCanvas.toDataURL('image/png', 1.0);
+                downloadBtn.href = finalCanvas.toDataURL('image/png', 0.9);
             }, 100);
         }
 
         function drawText(ctx, canvasWidth) {
             ctx.textAlign = 'center';
-            // Name
+            // Student Name
             ctx.font = `bold ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
             ctx.fillStyle = CONFIG.name.color;
             ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
-            // School
-            ctx.font = `${CONFIG.school.size}px 'Manjari', sans-serif`;
+            // School Name
+            ctx.font = `600 ${CONFIG.school.size}px 'Manjari', sans-serif`;
             ctx.fillStyle = CONFIG.school.color;
             ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
         }
