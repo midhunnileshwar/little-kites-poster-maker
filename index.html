@@ -217,14 +217,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         // CONFIGURATION
-    const CONFIG = {
+   // Merge your CONFIG into one
+const CONFIG = {
     name: {
+        x: 850, // Added back from your second block
         y: 1565,
         size: 55,
         color: '#004d40',
         font: 'Noto Sans Malayalam'
     },
     school: {
+        x: 850,
         y: 1650,
         size: 40,
         color: '#555555',
@@ -232,21 +235,17 @@
     }
 };
 
-            name: {
-                x: 850,
-                y: 1565, 
-                size: 55,
-                color: '#004d40',
-                font: 'Noto Sans Malayalam' 
-            },
-            school: {
-                x: 850,
-                y: 1650,
-                size: 40,
-                color: '#555555',
-                font: 'Manjari'
-            }
-        };
+// Fix the File Input Listener
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0]; // CRITICAL: Define 'file'
+    if (!file) return;
+
+    if(nameInput.value.trim() === "" || schoolInput.value.trim() === "") {
+        alert("Please enter Name and School first!");
+        fileInput.value = "";
+        return;
+    }
+    // ... rest of your code
 
         const fileInput = document.getElementById('fileInput');
         const nameInput = document.getElementById('nameInput');
