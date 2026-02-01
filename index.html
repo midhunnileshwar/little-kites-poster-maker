@@ -9,6 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
     
     <style>
+        #textControls input[type="range"] {
+    width: 100%;
+    margin-bottom: 10px;
+    accent-color: var(--primary);
+}
+#textControls label {
+    font-size: 0.7rem;
+    margin-top: 5px;
+    color: #666;
+}
         :root {
             --primary: #00897b; 
             --accent: #ff6f00;  
@@ -159,18 +169,72 @@
         .cropper-line, .cropper-point { display: none !important; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        function toggleTextControls() {
+    const panel = document.getElementById('textControls');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function updateLiveConfig() {
+    // This updates the CONFIG object based on the sliders
+    CONFIG.name.size = document.getElementById('nameSize').value;
+    CONFIG.name.y = parseInt(document.getElementById('nameY').value);
+    CONFIG.name.color = document.getElementById('nameColor').value;
+    CONFIG.name.bold = document.getElementById('nameBold').checked;
+    
+    CONFIG.school.size = document.getElementById('schoolSize').value;
+    CONFIG.school.y = parseInt(document.getElementById('schoolY').value);
+}
+
+// Update your existing drawText function to use the 'bold' property
+function drawText(ctx, canvasWidth) {
+    ctx.textAlign = 'center';
+    
+    // Name
+    const nameWeight = CONFIG.name.bold ? 'bold' : 'normal';
+    ctx.font = `${nameWeight} ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
+    ctx.fillStyle = CONFIG.name.color;
+    ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
+    
+    // School
+    ctx.font = `${CONFIG.school.size}px 'Manjari', sans-serif`;
+    ctx.fillStyle = CONFIG.school.color;
+    ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
+}
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Little KITES V1.0</h1>
+        <h1>Little KITES V2.0</h1>
         <p style="margin:2px 0; font-size: 0.9rem; opacity: 0.8;">Camp Poster Designer</p>
     </header>
 
     <div id="loading">✨ Finalizing Poster...</div>
 
     <div class="card" id="inputSection">
+        <button type="button" onclick="toggleTextControls()" style="width:100%; background:#eceff1; border:none; padding:10px; border-radius:10px; margin-bottom:15px; cursor:pointer; font-weight:600; color:var(--dark);">⚙️ Customize Text Style</button>
+
+<div id="textControls" style="display:none; background:rgba(0,0,0,0.03); padding:15px; border-radius:15px; margin-bottom:15px;">
+    <label>Name: Size & Vertical Position</label>
+    <input type="range" id="nameSize" min="20" max="150" value="55" oninput="updateLiveConfig()">
+    <input type="range" id="nameY" min="0" max="2000" value="1565" oninput="updateLiveConfig()">
+    
+    <label>School: Size & Vertical Position</label>
+    <input type="range" id="schoolSize" min="20" max="120" value="40" oninput="updateLiveConfig()">
+    <input type="range" id="schoolY" min="0" max="2000" value="1650" oninput="updateLiveConfig()">
+    
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <div style="flex:1">
+            <label>Name Color</label>
+            <input type="color" id="nameColor" value="#004d40" oninput="updateLiveConfig()" style="width:100%; height:40px; border:none; background:none;">
+        </div>
+        <div style="flex:1">
+            <label>Bold Name</label>
+            <input type="checkbox" id="nameBold" checked onchange="updateLiveConfig()">
+        </div>
+    </div>
+</div>
         <div class="input-group">
             <label>Student Name</label>
             <input type="text" id="nameInput" placeholder="Enter Full Name">
@@ -209,7 +273,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         const CONFIG = {
-            name: { y: 1565, size: 55, color: '#004d40' },
+            name: { y: 1565, size: 85, color: '#004d40' },
             school: { y: 1650, size: 40, color: '#455a64' }
         };
 
