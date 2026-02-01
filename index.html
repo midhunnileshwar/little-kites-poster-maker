@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Little KITES Camp Selection Generator V1.0 </title>
+    <title>Little KITES Poster Generator</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #00897b; 
@@ -19,11 +20,12 @@
             font-family: 'Noto Sans Malayalam', 'Manjari', sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            touch-action: manipulation; /* Prevents double-tap zoom delay */
         }
 
         .card {
@@ -46,13 +48,14 @@
             border-radius: 10px;
             font-size: 1rem;
             box-sizing: border-box;
+            outline: none;
         }
 
         .btn-upload {
             background: var(--primary);
             color: white;
-            padding: 15px;
-            border-radius: 50px;
+            padding: 18px;
+            border-radius: 15px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -60,23 +63,26 @@
             gap: 10px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 137, 123, 0.3);
+            text-align: center;
         }
         input[type="file"] { display: none; }
 
         #result-area { display: none; text-align: center; width: 100%; max-width: 400px; }
-        canvas { width: 100%; height: auto; border-radius: 15px; border: 1px solid #ddd; }
+        canvas { width: 100%; height: auto; border-radius: 15px; border: 1px solid #ddd; background: #fff; }
 
         .btn-download {
-            display: inline-block;
+            display: block;
             background: var(--accent);
             color: white;
             text-decoration: none;
-            padding: 15px 30px;
-            border-radius: 50px;
+            padding: 18px;
+            border-radius: 15px;
             font-weight: bold;
             margin-top: 15px;
+            font-size: 1.1rem;
         }
 
+        /* MOBILE EDITOR MODAL */
         #editorModal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -86,23 +92,60 @@
             flex-direction: column;
         }
 
-        .crop-workspace { flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        #imageToCrop { max-width: 100%; max-height: 80vh; display: block; }
-        .editor-controls { padding: 20px; background: #111; display: flex; gap: 15px; }
-        .btn-modal { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .crop-workspace { 
+            flex: 1; 
+            position: relative; 
+            background: #000; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+        }
+
+        #imageToCrop { max-width: 100%; display: block; }
+
+        .editor-controls { 
+            padding: 20px; 
+            background: #111; 
+            display: flex; 
+            gap: 15px; 
+            padding-bottom: env(safe-area-inset-bottom, 20px); /* For iPhones with notches */
+        }
+
+        .btn-modal { 
+            flex: 1; 
+            padding: 18px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            font-size: 1rem;
+            cursor: pointer; 
+        }
         .btn-cancel { background: #424242; color: white; }
         .btn-save { background: var(--primary); color: white; }
-        #loading { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; z-index: 10000; }
+
+        #loading { 
+            display: none; 
+            position: fixed; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: rgba(0,0,0,0.85); 
+            color: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            z-index: 10000; 
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <header style="text-align:center; margin-bottom:20px;">
-        <h1 style="color:var(--dark); margin:0;">Little KITES Camp Selection Generator V1.0 </h1>
-        <p style="color:#555;">Poster Generator</p>
+        <h1 style="color:var(--dark); margin:0; font-size: 1.4rem;">Little KITES Selection</h1>
+        <p style="color:#555; margin: 5px 0 0 0;">Camp Poster Generator</p>
     </header>
 
-    <div id="loading">Processing Image...</div>
+    <div id="loading">Processing Photo...</div>
 
     <div class="card" id="inputSection">
         <div class="input-group">
@@ -114,26 +157,28 @@
             <input type="text" id="schoolInput" placeholder="Ex: GHSS Nileshwar">
         </div>
 
-        <label for="fileInput" class="btn-upload">📷 Upload Student Photo</label>
+        <label for="fileInput" class="btn-upload">
+            <span>📷</span> Upload Student Photo
+        </label>
         <input type="file" id="fileInput" accept="image/*">
     </div>
 
     <div id="result-area">
         <canvas id="finalCanvas"></canvas>
-        <br>
         <a id="downloadBtn" class="btn-download" download="LittleKITES_Poster.png">Download Poster 📥</a>
-        <br><br>
-        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer;">Make Another</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer; margin-top: 20px; font-size: 0.9rem;">Create Another</button>
     </div>
 
     <div id="editorModal">
-        <div style="color:white; text-align:center; padding:10px; background:#111;">Adjust Photo Position</div>
+        <div style="color:white; text-align:center; padding:15px; background:#111; font-size: 0.9rem;">
+            Use two fingers to Pinch & Zoom
+        </div>
         <div class="crop-workspace">
-            <img id="imageToCrop" src="">
+            <img id="imageToCrop">
         </div>
         <div class="editor-controls">
             <button class="btn-modal btn-cancel" onclick="closeEditor()">Cancel</button>
-            <button class="btn-modal btn-save" onclick="generatePoster()">Generate ✅</button>
+            <button class="btn-modal btn-save" onclick="generatePoster()">Done ✅</button>
         </div>
     </div>
 
@@ -159,15 +204,15 @@
         let templateLoaded = false;
 
         templateImg.crossOrigin = "Anonymous";
-        templateImg.src = 'template.png'; // MUST BE IN SAME FOLDER
+        templateImg.src = 'template.png';
         templateImg.onload = () => { templateLoaded = true; };
-        templateImg.onerror = () => { alert("Warning: template.png not found in this folder."); };
+        templateImg.onerror = () => { console.error("template.png missing"); };
 
         fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0]; // THIS WAS MISSING
+            const file = e.target.files[0];
             if (!file) return;
 
-            if(nameInput.value.trim() === "" || schoolInput.value.trim() === "") {
+            if(!nameInput.value.trim() || !schoolInput.value.trim()) {
                 alert("Please enter Name and School first!");
                 fileInput.value = "";
                 return;
@@ -189,13 +234,20 @@
             editorModal.style.display = 'flex';
             if(cropper) cropper.destroy();
             
-            // Calculate aspect ratio from template or default to 1:1
+            // Set crop box to match template shape
             const ratio = templateLoaded ? templateImg.width / templateImg.height : 1;
 
             cropper = new Cropper(imageToCrop, {
                 aspectRatio: ratio,
                 viewMode: 1,
-                autoCropArea: 1
+                dragMode: 'move', // Allows dragging the image
+                touchDragZoom: true, // Enables Pinch Zoom
+                mouseWheelZoom: true,
+                autoCropArea: 1,
+                background: false,
+                ready() {
+                    // Mobile fix: ensure crop box is correctly sized on load
+                }
             });
         }
 
@@ -207,33 +259,48 @@
 
         function generatePoster() {
             if (!cropper) return;
-            const tWidth = templateLoaded ? templateImg.width : 1080;
-            const tHeight = templateLoaded ? templateImg.height : 1080;
+            loadingDiv.style.display = 'block';
 
-            const userCanvas = cropper.getCroppedCanvas({ width: tWidth, height: tHeight });
-            finalCanvas.width = tWidth;
-            finalCanvas.height = tHeight;
-            const ctx = finalCanvas.getContext('2d');
+            setTimeout(() => {
+                const tWidth = templateLoaded ? templateImg.width : 1080;
+                const tHeight = templateLoaded ? templateImg.height : 1080;
 
-            ctx.drawImage(userCanvas, 0, 0);
-            if(templateLoaded) ctx.drawImage(templateImg, 0, 0);
-            
-            drawText(ctx, tWidth);
+                const userCanvas = cropper.getCroppedCanvas({ 
+                    width: tWidth, 
+                    height: tHeight,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                });
 
-            editorModal.style.display = 'none';
-            inputSection.style.display = 'none'; 
-            document.getElementById('result-area').style.display = 'block';
-            downloadBtn.href = finalCanvas.toDataURL('image/png');
+                finalCanvas.width = tWidth;
+                finalCanvas.height = tHeight;
+                const ctx = finalCanvas.getContext('2d');
+
+                // Layer 1: Photo
+                ctx.drawImage(userCanvas, 0, 0);
+
+                // Layer 2: Template
+                if(templateLoaded) ctx.drawImage(templateImg, 0, 0);
+                
+                // Layer 3: Text
+                drawText(ctx, tWidth);
+
+                loadingDiv.style.display = 'none';
+                editorModal.style.display = 'none';
+                inputSection.style.display = 'none'; 
+                document.getElementById('result-area').style.display = 'block';
+                downloadBtn.href = finalCanvas.toDataURL('image/png', 1.0);
+            }, 100);
         }
 
         function drawText(ctx, canvasWidth) {
             ctx.textAlign = 'center';
-            // Draw Name
-            ctx.font = `bold ${CONFIG.name.size}px '${CONFIG.name.font}', sans-serif`;
+            // Name
+            ctx.font = `bold ${CONFIG.name.size}px 'Noto Sans Malayalam', sans-serif`;
             ctx.fillStyle = CONFIG.name.color;
             ctx.fillText(nameInput.value, canvasWidth / 2, CONFIG.name.y);
-            // Draw School
-            ctx.font = `${CONFIG.school.size}px '${CONFIG.school.font}', sans-serif`;
+            // School
+            ctx.font = `${CONFIG.school.size}px 'Manjari', sans-serif`;
             ctx.fillStyle = CONFIG.school.color;
             ctx.fillText(schoolInput.value, canvasWidth / 2, CONFIG.school.y);
         }
